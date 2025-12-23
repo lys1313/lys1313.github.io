@@ -201,64 +201,67 @@
     </div>
 
     <script>
-        let isOpen = false;
-        let hasMusicStarted = false;
-        const bgm = document.getElementById('bgm');
-        bgm.volume = 0.6; // 音量 60%
+    let isOpen = false;
+    const bgm = document.getElementById('bgm');
+    bgm.volume = 0.6; // 音量 60%
 
-        function toggleGift() {
-            const giftBox = document.getElementById('gift-box');
-            const overlay = document.getElementById('overlay');
-            const hint = document.getElementById('hint-text');
+    function toggleGift() {
+        const giftBox = document.getElementById('gift-box');
+        const overlay = document.getElementById('overlay');
+        const hint = document.getElementById('hint-text');
 
-            // 處理音樂：第一次點擊時才開始播放，之後就不會停了
-            if (!hasMusicStarted) {
-                bgm.play().then(() => {
-                    hasMusicStarted = true;
-                }).catch(e => {
-                    console.log("瀏覽器阻擋自動播放，需等待互動");
-                });
-            }
+        if (!isOpen) {
+            // --- 打開禮物盒 ---
+            
+            // 1. 設定音樂從頭播放 (時間歸零 -> 播放)
+            bgm.currentTime = 0; 
+            bgm.play().catch(e => {
+                console.log("需等待使用者互動才能播放");
+            });
 
-            if (!isOpen) {
-                // --- 執行打開動作 ---
-                giftBox.classList.add('open');
-                hint.style.opacity = '0';
+            // 2. 畫面動畫
+            giftBox.classList.add('open');
+            hint.style.opacity = '0';
+            
+            setTimeout(() => {
+                overlay.classList.add('active');
+                popConfetti(); 
+            }, 400);
+            
+            isOpen = true;
+
+        } else {
+            // --- 關上禮物盒 ---
+            
+            overlay.classList.remove('active');
+            
+            setTimeout(() => {
+                giftBox.classList.remove('open');
+                hint.style.opacity = '1';
                 
-                // 稍微延遲讓卡片彈出
-                setTimeout(() => {
-                    overlay.classList.add('active');
-                    popConfetti(); // 只有打開時才噴紙花
-                }, 400);
+                // 3. 停止音樂並歸零
+                bgm.pause();
+                bgm.currentTime = 0; 
                 
-                isOpen = true;
-            } else {
-                // --- 執行關閉動作 ---
-                overlay.classList.remove('active');
-                
-                // 等卡片消失後，蓋子才蓋上
-                setTimeout(() => {
-                    giftBox.classList.remove('open');
-                    hint.style.opacity = '1';
-                    // 這裡不暫停音樂，讓它繼續播
-                }, 300);
-                
-                isOpen = false;
-            }
+            }, 300);
+            
+            isOpen = false;
         }
+    }
 
-        function popConfetti() {
-            const colors = ['#d64045', '#f7b232', '#6ab04c', '#2d98da'];
-            for(let i=0; i<50; i++) {
-                const div = document.createElement('div');
-                div.classList.add('confetti');
-                div.style.left = Math.random() * 100 + 'vw';
-                div.style.top = '-10px';
-                div.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                div.style.animationDuration = (Math.random() * 2 + 1) + 's';
-                document.body.appendChild(div);
-            }
+    function popConfetti() {
+        const colors = ['#d64045', '#f7b232', '#6ab04c', '#2d98da'];
+        for(let i=0; i<50; i++) {
+            const div = document.createElement('div');
+            div.classList.add('confetti');
+            div.style.left = Math.random() * 100 + 'vw';
+            div.style.top = '-10px';
+            div.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            div.style.animationDuration = (Math.random() * 2 + 1) + 's';
+            document.body.appendChild(div);
         }
-    </script>
+    }
+</script>
 </body>
 </html>
+
